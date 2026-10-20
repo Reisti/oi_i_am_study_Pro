@@ -65,15 +65,15 @@
   ### Иерархическая адресация:
    1. Каждый регион получил уникальный третий октет (Москва 13, Китрон 11, Ламас 12). Изменение адресного пространства
 
-        ip address 10.21.13.67 255.255.255.192   
+          ip address 10.21.13.67 255.255.255.192   
 
   ### Инжекция маршрута по умолчанию:
    1. Команда default-information originate always metric 10 на ABR (R14, R15).
    2. Параметр always гарантирует анонс дефолтного маршрута даже при отсутствии его в RIB.
 
-        router ospf 1   
-        router-id 10.21.37.5   
-        default-information originate always metric 10   
+          router ospf 1   
+          router-id 10.21.37.5   
+          default-information originate always metric 10   
 
   ### Фильтрация маршрутов (Area 102):
    1. На R15 создан ip prefix-list BLOCK_AREA101, запрещающий Loopback R19 (10.21.37.6/32).
@@ -92,10 +92,10 @@
    2. Блокирует LSA типов 3, 4 и 5. R19 видит в таблице маршрутизации только O*IA 0.0.0.0/0.   
 
 
-        router ospf 1   
-        router-id 10.21.37.4   
-        area 101 stub no-summary   
-       
+          router ospf 1   
+          router-id 10.21.37.4   
+          area 101 stub no-summary   
+        
   
 
   
