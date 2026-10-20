@@ -62,20 +62,38 @@
 
 ##  Конфигурации:  
     
-    1. Иерархическая адресация:
-        - Каждый регион получил уникальный третий октет (Москва 13, Китрон 11, Ламас 12). Изменение адресного пространства
+  ### Иерархическая адресация:
+    - Каждый регион получил уникальный третий октет (Москва 13, Китрон 11, Ламас 12). Изменение адресного пространства
 
-    2. Инжекция маршрута по умолчанию:
-        - Команда default-information originate always metric 10 на ABR ([R14], [R15]).
-        - Параметр always гарантирует анонс дефолтного маршрута даже при отсутствии его в RIB.
+  ### Инжекция маршрута по умолчанию:
+    - Команда default-information originate always metric 10 на ABR (R14, R15).
+    - Параметр always гарантирует анонс дефолтного маршрута даже при отсутствии его в RIB.
 
-    3. Фильтрация маршрутов (Area 102):
-        - На R15 создан ip prefix-list BLOCK_AREA101, запрещающий Loopback [R19] (10.21.37.6/32).
-        - Применен через area 102 filter-list prefix BLOCK_AREA101 out. [R20] не знает о существовании [R19].
+        router ospf 1   
+        router-id 10.21.37.5   
+        default-information originate always metric 10   
 
-    4. Totally Stubby Area (Area 101):
-        - Команда area 101 stub no-summary на ABR (R14) и внутреннем роутере ([R19]).
-        - Блокирует LSA типов 3, 4 и 5. [R19] видит в таблице маршрутизации только O*IA 0.0.0.0/0.   
+  ### Фильтрация маршрутов (Area 102):
+    - На R15 создан ip prefix-list BLOCK_AREA101, запрещающий Loopback R19 (10.21.37.6/32).
+    - Применен через area 102 filter-list prefix BLOCK_AREA101 out. R20 не знает о существовании R19.
+
+          router ospf 1   
+          router-id 10.21.37.5   
+          area 102 filter-list prefix BLOCK_AREA101 out   
+
+          ip prefix-list BLOCK_AREA101 seq 5 deny 10.21.37.6/32   
+          ip prefix-list BLOCK_AREA101 seq 10 permit 0.0.0.0/0 le 32   
+
+
+  ### Totally Stubby Area (Area 101):
+    - Команда area 101 stub no-summary на ABR (R14) и внутреннем роутере (R19).
+    - Блокирует LSA типов 3, 4 и 5. R19 видит в таблице маршрутизации только O*IA 0.0.0.0/0.   
+
+
+        router ospf 1   
+        router-id 10.21.37.4   
+        area 101 stub no-summary   
+       
   
 
   
