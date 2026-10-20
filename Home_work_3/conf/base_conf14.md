@@ -1,99 +1,99 @@
-R14#show running-config  
-Building configuration... 
- 
-Current configuration : 1864 bytes 
-! 
-version 15.5 
-service timestamps debug datetime msec 
-service timestamps log datetime msec 
-no service password-encryption 
-!  
-hostname R14 
-! 
-boot-start-marker 
-boot-end-marker 
-! 
-enable secret 5 $1$oYVA$kJzY/e2eF6mqNw/lvbQG8. 
-! 
-no aaa new-model 
-! 
-bsd-client server url https://cloudsso.cisco.com/as/token.oauth2 
-mmi polling-interval 60 
-no mmi auto-configure 
-no mmi pvc 
-mmi snmp-timeout 180 
-! 
-no ip domain lookup 
-ip domain name R14.local 
-ip cef 
-no ipv6 cef 
-! 
-multilink bundle-name authenticated 
-! 
-cts logging verbose 
-! 
-username admin secret 5 $1$Z5U7$fgM/OCyZdR/z1zGoF0bTe/ 
-! 
-redundancy 
-! 
-ip ssh version 2 
-! 
-interface Loopback0 
- description Management Loopback Interface 
- ip address 10.21.37.4 255.255.255.255 
-! 
-interface Ethernet0/0 
- no ip address 
-! 
-interface Ethernet0/0.22 
- encapsulation dot1Q 22 
- ip address 10.21.13.3 255.255.255.192 
-! 
-interface Ethernet0/1 
- no ip address 
-! 
-interface Ethernet0/1.23 
- encapsulation dot1Q 23 
- ip address 10.21.13.67 255.255.255.192 
-! 
-interface Ethernet0/2 
- no ip address 
-! 
-interface Ethernet0/2.21 
- encapsulation dot1Q 21 
- ip address 10.21.13.233 255.255.255.252 
-! 
-interface Ethernet0/3 
- no ip address 
-! 
-interface Ethernet0/3.101 
- encapsulation dot1Q 101 
- ip address 10.21.13.225 255.255.255.252 
-! 
-router ospf 1 
- router-id 10.21.37.4 
- area 101 stub no-summary 
- network 10.21.13.0 0.0.0.63 area 10 
- network 10.21.13.64 0.0.0.63 area 10 
- network 10.21.13.224 0.0.0.3 area 101 
- network 10.21.13.232 0.0.0.3 area 0 
- network 10.21.37.4 0.0.0.0 area 0 
- default-information originate always metric 10 
-! 
-ip forward-protocol nd 
-! 
-no ip http server 
-no ip http secure-server 
-ip route 192.168.61.0 255.255.255.0 10.21.73.18 
-! 
-control-plane 
-! 
-line con 0 
- logging synchronous 
-line aux 0 
-line vty 0 4 
- login local 
- transport input ssh 
-! 
-end 
+R14#show running-config    
+Building configuration...   
+   
+Current configuration : 1864 bytes   
+!   
+version 15.5   
+service timestamps debug datetime msec   
+service timestamps log datetime msec   
+no service password-encryption   
+!    
+hostname R14   
+!   
+boot-start-marker   
+boot-end-marker   
+!   
+enable secret 5 $1$oYVA$kJzY/e2eF6mqNw/lvbQG8.   
+!   
+no aaa new-model   
+!   
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2   
+mmi polling-interval 60   
+no mmi auto-configure   
+no mmi pvc   
+mmi snmp-timeout 180   
+!   
+no ip domain lookup   
+ip domain name R14.local   
+ip cef   
+no ipv6 cef   
+!   
+multilink bundle-name authenticated   
+!   
+cts logging verbose   
+!   
+username admin secret 5 $1$Z5U7$fgM/OCyZdR/z1zGoF0bTe/   
+!   
+redundancy   
+!   
+ip ssh version 2   
+!   
+interface Loopback0   
+ description Management Loopback Interface   
+ ip address 10.21.37.4 255.255.255.255   
+!   
+interface Ethernet0/0   
+ no ip address   
+!   
+interface Ethernet0/0.22   
+ encapsulation dot1Q 22   
+ ip address 10.21.13.3 255.255.255.192   
+!   
+interface Ethernet0/1   
+ no ip address   
+!   
+interface Ethernet0/1.23   
+ encapsulation dot1Q 23   
+ ip address 10.21.13.67 255.255.255.192   
+!   
+interface Ethernet0/2   
+ no ip address   
+!   
+interface Ethernet0/2.21   
+ encapsulation dot1Q 21   
+ ip address 10.21.13.233 255.255.255.252   
+!   
+interface Ethernet0/3   
+ no ip address   
+!   
+interface Ethernet0/3.101   
+ encapsulation dot1Q 101   
+ ip address 10.21.13.225 255.255.255.252   
+!   
+router ospf 1   
+ router-id 10.21.37.4   
+ area 101 stub no-summary   
+ network 10.21.13.0 0.0.0.63 area 10   
+ network 10.21.13.64 0.0.0.63 area 10   
+ network 10.21.13.224 0.0.0.3 area 101   
+ network 10.21.13.232 0.0.0.3 area 0   
+ network 10.21.37.4 0.0.0.0 area 0   
+ default-information originate always metric 10   
+!   
+ip forward-protocol nd   
+!   
+no ip http server   
+no ip http secure-server   
+ip route 192.168.61.0 255.255.255.0 10.21.73.18   
+!   
+control-plane   
+!   
+line con 0   
+ logging synchronous   
+line aux 0   
+line vty 0 4   
+ login local   
+ transport input ssh   
+!   
+end   
 

@@ -1,9 +1,8 @@
-R20#show running-config    
+
+R20#show running-config   
 Building configuration...  
   
-Current configuration : 1408 bytes  
-!  
-! Last configuration change at 19:35:05 UTC Sun Oct 18 2026  
+Current configuration : 1346 bytes  
 !  
 version 15.5  
 service timestamps debug datetime msec  
@@ -27,7 +26,7 @@ mmi snmp-timeout 180
 !  
 no ip domain lookup  
 ip domain name R20.local  
-ip cef  
+ip cef    
 no ipv6 cef  
 !  
 multilink bundle-name authenticated  
@@ -48,12 +47,24 @@ interface Ethernet0/0
 !  
 interface Ethernet0/0.102  
  encapsulation dot1Q 102  
- ip address 10.21.102.7 255.255.255.128  
+ ip address 10.21.13.230 255.255.255.252  
+!  
+interface Ethernet0/1  
+ no ip address  
+ shutdown  
+!  
+interface Ethernet0/2  
+ no ip address  
+ shutdown  
+!  
+interface Ethernet0/3  
+ no ip address  
+ shutdown  
 !  
 router ospf 1  
  router-id 10.21.37.7  
+ network 10.21.13.228 0.0.0.3 area 102  
  network 10.21.37.7 0.0.0.0 area 102  
- network 10.21.102.0 0.0.0.127 area 102  
 !  
 ip forward-protocol nd  
 !  
@@ -68,6 +79,5 @@ line aux 0
 line vty 0 4  
  login local  
  transport input ssh  
-!  
 !  
 end  

@@ -1,10 +1,7 @@
-
-R19#show running-config    
+R19#show running-config   
 Building configuration...  
   
-Current configuration : 1434 bytes  
-!  
-! Last configuration change at 19:34:49 UTC Sun Oct 18 2026  
+Current configuration : 1372 bytes  
 !  
 version 15.5  
 service timestamps debug datetime msec  
@@ -17,7 +14,7 @@ boot-start-marker
 boot-end-marker  
 !  
 enable secret 5 $1$ah6k$683xiQGMC7up5ry5D2rSU/  
-!  
+!    
 no aaa new-model  
 !  
 bsd-client server url https://cloudsso.cisco.com/as/token.oauth2  
@@ -49,13 +46,25 @@ interface Ethernet0/0
 !  
 interface Ethernet0/0.101  
  encapsulation dot1Q 101  
- ip address 10.21.101.6 255.255.255.128  
+ ip address 10.21.13.226 255.255.255.252  
+!  
+interface Ethernet0/1  
+ no ip address  
+ shutdown  
+!  
+interface Ethernet0/2  
+ no ip address  
+ shutdown  
+!  
+interface Ethernet0/3  
+ no ip address  
+ shutdown  
 !  
 router ospf 1  
  router-id 10.21.37.6  
  area 101 stub no-summary  
+ network 10.21.13.224 0.0.0.3 area 101  
  network 10.21.37.6 0.0.0.0 area 101  
- network 10.21.101.0 0.0.0.127 area 101  
 !  
 ip forward-protocol nd  
 !  
@@ -72,4 +81,3 @@ line vty 0 4
  transport input ssh  
 !  
 end  
-  
