@@ -122,22 +122,30 @@
 
 **Команда:** `show ip route isis и ping`
 
-      R26# show ip route isis
+      R26#show ip route isis
       Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-            ...
+            D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+            N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+            E1 - OSPF external type 1, E2 - OSPF external type 2
             i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+            ia - IS-IS inter area, * - candidate default, U - per-user static route
+            o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+            a - application route
+            + - replicated route, % - next hop override
 
       Gateway of last resort is not set
 
             10.0.0.0/8 is variably subnetted, 19 subnets, 2 masks
-      i L2     10.21.11.12/30 [115/30] via 10.21.16.25, 00:01:01, Ethernet0/2.24
-                              [115/30] via 10.21.16.21, 00:01:01, Ethernet0/0.22
-      i L2     10.21.12.8/30 [115/20] via 10.21.16.21, 00:01:19, Ethernet0/0.22
-      i L2     10.21.16.4/30 [115/20] via 10.21.16.25, 00:01:01, Ethernet0/2.24
-      i L2     10.21.37.13/32 [115/30] via 10.21.16.25, 00:01:01, Ethernet0/2.24
-                              [115/30] via 10.21.16.21, 00:01:01, Ethernet0/0.22
-      i L2     10.21.37.14/32 [115/20] via 10.21.16.21, 00:01:19, Ethernet0/0.22
-      i L2     10.21.37.15/32 [115/20] via 10.21.16.25, 00:01:01, Ethernet0/2.24
+      i L2     10.21.11.12/30 [115/30] via 10.21.16.25, 00:46:15, Ethernet0/2.24
+                              [115/30] via 10.21.16.21, 00:46:15, Ethernet0/0.22
+      i L2     10.21.12.8/30 [115/20] via 10.21.16.21, 00:46:33, Ethernet0/0.22
+      i L2     10.21.16.4/30 [115/20] via 10.21.16.25, 00:46:15, Ethernet0/2.24
+      i L2     10.21.16.8/30 [115/20] via 10.21.16.21, 00:46:33, Ethernet0/0.22
+      i L2     10.21.16.12/30 [115/20] via 10.21.16.21, 00:46:33, Ethernet0/0.22
+      i L2     10.21.16.32/30 [115/20] via 10.21.16.25, 00:46:15, Ethernet0/2.24
+      i L2     10.21.16.40/30 [115/20] via 10.21.16.25, 00:46:15, Ethernet0/2.24
+      i L2     10.21.37.13/32 [115/30] via 10.21.16.25, 00:46:15, Ethernet0/2.24
+
 
       R26# ping 10.21.37.13 source Loopback0
       Type escape sequence to abort.
