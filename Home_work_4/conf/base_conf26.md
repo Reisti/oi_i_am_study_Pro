@@ -1,19 +1,22 @@
-R15#show running-config   
+
+R26#show running-config    
 Building configuration...   
    
-Current configuration : 1946 bytes   
+Current configuration : 1962 bytes   
+!   
+! Last configuration change at 16:31:38 UTC Thu Oct 22 2026   
 !   
 version 15.5   
 service timestamps debug datetime msec   
 service timestamps log datetime msec   
 no service password-encryption   
 !   
-hostname R15   
+hostname R26   
 !   
 boot-start-marker   
 boot-end-marker   
 !   
-enable secret 5 $1$07ej$M7GHFv3h7TbZbkRVLsj130   
+enable secret 5 $1$wWeY$qZ1kpP4Rg4FwXnAifFa0w/   
 !   
 no aaa new-model   
 !   
@@ -24,7 +27,7 @@ no mmi pvc
 mmi snmp-timeout 180   
 !   
 no ip domain lookup   
-ip domain name R15.local   
+ip domain name R26.local   
 ip cef   
 no ipv6 cef   
 !   
@@ -32,63 +35,58 @@ multilink bundle-name authenticated
 !   
 cts logging verbose   
 !   
-username admin secret 5 $1$R7nM$nEcdmMTmYBG.plYFZUT3N1   
+username admin secret 5 $1$gArC$K7GHpAW/vvavnTdLzJ1fD/   
 !   
 redundancy   
 !   
 ip ssh version 2   
 !   
 interface Loopback0   
- no ip address   
-!   
-interface Loopback1   
- ip address 10.21.37.5 255.255.255.255   
+ ip address 10.21.37.16 255.255.255.255   
+ ip router isis TRIADA   
 !   
 interface Ethernet0/0   
  no ip address   
 !   
 interface Ethernet0/0.22   
  encapsulation dot1Q 22   
- ip address 10.21.13.4 255.255.255.192   
+ ip address 10.21.16.22 255.255.255.252   
+ ip router isis TRIADA   
 !   
 interface Ethernet0/1   
  no ip address   
 !   
 interface Ethernet0/1.23   
  encapsulation dot1Q 23   
- ip address 10.21.13.68 255.255.255.192   
+ ip address 10.21.16.38 255.255.255.252   
+ ip router isis TRIADA   
 !   
 interface Ethernet0/2   
  no ip address   
 !   
-interface Ethernet0/2.21   
- encapsulation dot1Q 21   
- ip address 10.21.13.237 255.255.255.252   
+interface Ethernet0/2.24   
+ encapsulation dot1Q 24   
+ ip address 10.21.16.26 255.255.255.252   
+ ip router isis TRIADA   
 !   
 interface Ethernet0/3   
  no ip address   
 !   
-interface Ethernet0/3.102   
- encapsulation dot1Q 102   
- ip address 10.21.13.229 255.255.255.252   
+interface Ethernet0/3.21   
+ encapsulation dot1Q 21   
+ ip address 10.21.16.45 255.255.255.252   
+ ip router isis TRIADA   
 !   
-router ospf 1   
- router-id 10.21.37.5   
- area 102 filter-list prefix BLOCK_AREA101 out   
- network 10.21.13.0 0.0.0.63 area 10   
- network 10.21.13.64 0.0.0.63 area 10   
- network 10.21.13.228 0.0.0.3 area 102   
- network 10.21.13.236 0.0.0.3 area 0   
- network 10.21.37.5 0.0.0.0 area 0   
- default-information originate always metric 10   
+router isis TRIADA   
+ net 49.0026.0100.2103.7016.00   
+ is-type level-2-only   
+ metric-style wide   
+ log-adjacency-changes   
 !   
 ip forward-protocol nd   
 !   
 no ip http server   
 no ip http secure-server   
-!   
-ip prefix-list BLOCK_AREA101 seq 5 deny 10.21.37.6/32   
-ip prefix-list BLOCK_AREA101 seq 10 permit 0.0.0.0/0 le 32   
 !   
 control-plane   
 !   
@@ -98,4 +96,5 @@ line aux 0
 line vty 0 4   
  login local   
  transport input ssh   
+!   
 end   
