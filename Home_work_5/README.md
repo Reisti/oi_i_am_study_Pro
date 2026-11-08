@@ -57,41 +57,137 @@
 | Внешние линки R18 (`10.21.16.x/30`) | не входят в EIGRP | Не попадают под `network`, интерфейсы пассивные |
 | Коммутаторы SW9, SW10 | EIGRP не используется | Работают на L2, SVI только для управления |
 
-Архитектурные решения
+## Конфигурация
 
-1. **`is-type level-2-only`**: Сеть "Триада" является ядром провайдера (Core). Поскольку маршрутизаторы находятся в разных зонах (2222, 24, 26), использование чистого Level-2 объединяет их в единую плоскую магистраль. Это предотвращает неоптимальную маршрутизацию (suboptimal routing), характерную для Level-1, и экономит ресурсы CPU/RAM (не нужно хранить две LSDB).
-2. **`metric-style wide`**: Включает 24-битные метрики (до 16 777 215). Это современный стандарт (Best Practice), необходимый для корректной работы в больших сетях и поддержки Traffic Engineering (TE).
-3. **`log-adjacency-changes`**: Включает логирование изменений состояния соседства в syslog, что критически важно для мониторинга и диагностики сбоев (flapping).
-4. **Имя процесса**: Использован тег `TRIADA` для явной идентификации процесса IS-IS.
+### R16
 
-### Пример настройки на R23 (Area 2222)
+```
+router eigrp SPB
+ address-family ipv4 unicast autonomous-system 2042
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/0.21
+   no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/1.22
+   no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/2.24
+   no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/2.12
+   no passive-interface
+   summary-address 10.21.144.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/3.23
+   no passive-interface
+   summary-address 0.0.0.0 0.0.0.0
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.21.14.0 0.0.0.255
+  network 10.21.144.0 0.0.0.255
+  network 10.21.37.8 0.0.0.0
+  eigrp router-id 10.21.37.8
+ exit-address-family
+```
 
-      hostname R23
-      !
-      interface Loopback0
-      ip address 10.21.37.13 255.255.255.255
-      ip router isis TRIADA
-      !
-      interface Ethernet0/0.23
-      encapsulation dot1Q 23
-      ip address 10.21.11.13 255.255.255.252
-      ip router isis TRIADA
-      !
-      interface Ethernet0/1.22
-      encapsulation dot1Q 22
-      ip address 10.21.16.5 255.255.255.252
-      ip router isis TRIADA
-      !
-      interface Ethernet0/2.21
-      encapsulation dot1Q 21
-      ip address 10.21.16.10 255.255.255.252
-      ip router isis TRIADA
-      !
-      router isis TRIADA
-      net 49.2222.0100.2103.7013.00
-      is-type level-2-only
-      metric-style wide
-      log-adjacency-changes
+### R17
+
+```
+router eigrp SPB
+ address-family ipv4 unicast autonomous-system 2042
+  af-interface default
+   passive-interface
+  exit-af-interface
+  !
+  af-interface Ethernet0/0.24
+   no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/1.23
+   no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/2.12
+   no passive-interface
+   summary-address 10.21.144.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  af-interface Ethernet0/2.21
+   no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.37.0 255.255.255.0
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.21.14.0 0.0.0.255
+  network 10.21.144.0 0.0.0.255
+  network 10.21.37.9 0.0.0.0
+  eigrp router-id 10.21.37.9
+ exit-address-family
+```
+
+### R18
+
+```
+router eigrp SPB
+ address-family ipv4 unicast autonomous-system 2042
+  af-interface default
+   passive-interface
+  exit-af-interface
+  af-interface Ethernet0/0.22
+   no passive-interface
+  exit-af-interface
+  af-interface Ethernet0/1.23
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.21.14.0 0.0.0.255
+  network 10.21.37.10 0.0.0.0
+  eigrp router-id 10.21.37.10
+ exit-address-family
+```
+
+### R32
+
+VLAN 23 общий для R16, R17, R18 и R32, поэтому R17 тоже отправляет в него суммарный префикс. Входящий prefix-list гарантирует, что R32 примет только маршрут по умолчанию.
+
+```
+ip prefix-list ONLY-DEFAULT seq 5 permit 0.0.0.0/0
+
+router eigrp SPB
+ address-family ipv4 unicast autonomous-system 2042
+  af-interface default
+   passive-interface
+  exit-af-interface
+  af-interface Ethernet0/0.23
+   no passive-interface
+  exit-af-interface
+  !
+  topology base
+   distribute-list prefix ONLY-DEFAULT in Ethernet0/0.23
+  exit-af-topology
+  network 10.21.14.64 0.0.0.7
+  network 10.21.37.11 0.0.0.0
+  eigrp router-id 10.21.37.11
+ exit-address-family
+```
 
       
 ## 4. Верификация и тестирование
