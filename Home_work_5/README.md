@@ -273,6 +273,29 @@ D        10.21.144.0/24 [90/1536000] via 10.21.14.129, Ethernet0/0.22
                          [90/1536000] via 10.21.14.66, Ethernet0/1.23
 ```
 
+### R16 и R17: соседство по VLAN 21 и 24 — выполнено
+
+После настройки SW9 и SW10 R16 и R17 стали EIGRP-соседями по VLAN 21 и 24:
+
+```
+R16#ping 10.21.14.2
+!!!!!
+Success rate is 100 percent (5/5)
+
+R16#show eigrp address-family ipv4 neighbors
+3   10.21.14.2              Et0/0.21
+2   10.21.14.194            Et0/2.24
+1   10.21.14.68             Et0/3.23
+0   10.21.14.130            Et0/1.22
+
+R17#show eigrp address-family ipv4 neighbors
+2   10.21.14.1              Et0/2.21
+1   10.21.14.193            Et0/0.24
+0   10.21.14.67             Et0/1.23
+```
+
+
+
 [R16]: conf/base_conf16.md 
 [R17]: conf/base_conf17.md  
 [R18]: conf/base_conf18.md 
