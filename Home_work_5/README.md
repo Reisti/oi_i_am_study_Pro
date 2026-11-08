@@ -59,7 +59,7 @@
 
 ## Конфигурация
 
-### R16
+### [R16]
 
 ```
 router eigrp SPB
@@ -71,20 +71,24 @@ router eigrp SPB
   af-interface Ethernet0/0.21
    no passive-interface
    summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   af-interface Ethernet0/1.22
    no passive-interface
    summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   af-interface Ethernet0/2.24
    no passive-interface
    summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   af-interface Ethernet0/2.12
    no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
    summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
@@ -102,8 +106,8 @@ router eigrp SPB
  exit-address-family
 ```
 
-### R17
-
+### [R17]  
+   
 ```
 router eigrp SPB
  address-family ipv4 unicast autonomous-system 2042
@@ -114,21 +118,25 @@ router eigrp SPB
   af-interface Ethernet0/0.24
    no passive-interface
    summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   af-interface Ethernet0/1.23
    no passive-interface
    summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   af-interface Ethernet0/2.12
    no passive-interface
+   summary-address 10.21.14.0 255.255.255.0
    summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   af-interface Ethernet0/2.21
    no passive-interface
    summary-address 10.21.14.0 255.255.255.0
+   summary-address 10.21.144.0 255.255.255.0
    summary-address 10.21.37.0 255.255.255.0
   exit-af-interface
   !
@@ -141,7 +149,7 @@ router eigrp SPB
  exit-address-family
 ```
 
-### R18
+### [R18]
 
 ```
 router eigrp SPB
@@ -164,9 +172,9 @@ router eigrp SPB
  exit-address-family
 ```
 
-### R32
+### [R32]
 
-VLAN 23 общий для R16, R17, R18 и R32, поэтому R17 тоже отправляет в него суммарный префикс. Входящий prefix-list гарантирует, что R32 примет только маршрут по умолчанию.
+Входящий prefix-list служит дополнительной защитой: даже при появлении других соседей R32 примет только маршрут по умолчанию.
 
 ```
 ip prefix-list ONLY-DEFAULT seq 5 permit 0.0.0.0/0
@@ -189,75 +197,84 @@ router eigrp SPB
  exit-address-family
 ```
 
-      
-## 4. Верификация и тестирование
+## Назначение основных команд
 
-После применения конфигурации были выполнены следующие проверки (на примере маршрутизатора **R26**) для подтверждения корректной работы протокола.
+| Команда | Назначение |
+|:--------|:-----------|
+| `router eigrp SPB` | Создаёт процесс EIGRP в named-mode (имя локально, с соседями не согласуется) |
+| `address-family ipv4 unicast autonomous-system 2042` | Включает семейство IPv4 и задаёт номер AS (должен совпадать у соседей) |
+| `af-interface default` + `passive-interface` | Делает все интерфейсы пассивными: нет Hello и соседств |
+| `af-interface <имя>` + `no passive-interface` | Включает соседства на нужном интерфейсе |
+| `summary-address <сеть> <маска>` | Анонсирует на интерфейс суммарный префикс вместо специфичных маршрутов |
+| `summary-address 0.0.0.0 0.0.0.0` | Подавляет все маршруты, остаётся только default (для R32) |
+| `topology base` | Базовая топология, в ней задаются фильтры и метрики |
+| `distribute-list prefix ... in` | Фильтрует входящие маршруты по prefix-list |
+| `network <адрес> <wildcard>` | Включает EIGRP на интерфейсах, адреса которых попадают в диапазон |
+| `eigrp router-id` | Фиксирует идентификатор роутера |
 
-### 1. Проверка соседств (Adjacencies)
+## Проверка
 
-**Команда:** `show isis neighbors`
+```
+show eigrp address-family ipv4 neighbors
+show ip eigrp topology
+show ip route eigrp
+show running-config | section eigrp
+```
 
-      R26# show isis neighbors
-      Tag TRIADA:
-      System Id      Type Interface   IP Address      State Holdtime Circuit Id
-      R24            L2   Et0/0.22    10.21.16.21     UP    29       R26.01                                                          
-      R25            L2   Et0/2.24    10.21.16.25     UP    24       R26.03
+Ожидаемый результат:
 
-### 2. Проверка базы данных состояний (LSDB)
-  
-**Команда:** `show isis database`
+- Между R16, R17, R18 и R32 установлены EIGRP-соседства.
+- На R32 в таблице EIGRP только `D* 0.0.0.0/0`.
+- На R18 присутствуют суммарные маршруты `10.21.14.0/24`, `10.21.144.0/24` и `10.21.37.0/24`.
+- На R16 и R17 созданы суммарные маршруты с выходом на `Null0` (AD 5).
+- Связность между VPC8 и VPC в VLAN 12 сохраняется.
 
-      R26# show isis database
-      Tag TRIADA:
-      IS-IS Level-2 Link State Database:
-      LSPID                 LSP Seq Num  LSP Checksum  LSP Holdtime      ATT/P/OL
-      R23.00-00             0x00000006   0xA3CE        931               0/0/0
-      R24.00-00             0x00000005   0xEE26        1122              0/0/0
-      R24.03-00             0x00000002   0x923D        660               0/0/0
-      R25.00-00             0x00000003   0xCFE9        1140              0/0/0
-      R25.01-00             0x00000001   0xA32D        931               0/0/0
-      R26.00-00           * 0x00000008   0x298C        1152              0/0/0
-      R26.01-00           * 0x00000001   0xB815        1125              0/0/0
-      R26.03-00           * 0x00000001   0xBE0C        1143              0/0/0
+## Результаты проверки
 
-### 3. Проверка таблицы маршрутизации и связности
+### R32: только маршрут по умолчанию (задание 2) — выполнено
 
-**Команда:** `show ip route isis и ping`
+```
+R32#show eigrp address-family ipv4 neighbors
+0   10.21.14.65             Et0/0.23
 
-      R26#show ip route isis
-      Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-            D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
-            N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-            E1 - OSPF external type 1, E2 - OSPF external type 2
-            i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-            ia - IS-IS inter area, * - candidate default, U - per-user static route
-            o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
-            a - application route
-            + - replicated route, % - next hop override
+R32#show ip route eigrp
+Gateway of last resort is 10.21.14.65 to network 0.0.0.0
+D*    0.0.0.0/0 [90/1024640] via 10.21.14.65, Ethernet0/0.23
+```
 
-      Gateway of last resort is not set
+Единственный сосед R32 — R16. В таблице EIGRP только маршрут по умолчанию.
 
-            10.0.0.0/8 is variably subnetted, 19 subnets, 2 masks
-      i L2     10.21.11.12/30 [115/30] via 10.21.16.25, 00:46:15, Ethernet0/2.24
-                              [115/30] via 10.21.16.21, 00:46:15, Ethernet0/0.22
-      i L2     10.21.12.8/30 [115/20] via 10.21.16.21, 00:46:33, Ethernet0/0.22
-      i L2     10.21.16.4/30 [115/20] via 10.21.16.25, 00:46:15, Ethernet0/2.24
-      i L2     10.21.16.8/30 [115/20] via 10.21.16.21, 00:46:33, Ethernet0/0.22
-      i L2     10.21.16.12/30 [115/20] via 10.21.16.21, 00:46:33, Ethernet0/0.22
-      i L2     10.21.16.32/30 [115/20] via 10.21.16.25, 00:46:15, Ethernet0/2.24
-      i L2     10.21.16.40/30 [115/20] via 10.21.16.25, 00:46:15, Ethernet0/2.24
-      i L2     10.21.37.13/32 [115/30] via 10.21.16.25, 00:46:15, Ethernet0/2.24
+### R16 и R17: суммарные префиксы (задание 3) — выполнено
 
+На R16 и R17 созданы суммарные маршруты на `Null0`:
 
-      R26# ping 10.21.37.13 source Loopback0
-      Type escape sequence to abort.
-      Sending 5, 100-byte ICMP Echos to 10.21.37.13, timeout is 2 seconds:
-      !!!!!
-      Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+```
+R16#show ip route eigrp
+D*    0.0.0.0/0 is a summary, Null0
+D        10.21.14.0/24 is a summary, Null0
+D        10.21.37.0/24 is a summary, Null0
+D        10.21.144.0/24 is a summary, Null0
 
-[R23]: conf/base_conf12.md 
-[R24]: conf/base_conf13.md  
-[R25]: conf/base_conf14.md 
-[R26]: conf/base_conf15.md  
+R17#show ip route eigrp
+D        10.21.14.0/24 is a summary, Null0
+D        10.21.37.0/24 is a summary, Null0
+D        10.21.144.0/24 is a summary, Null0
+```
+
+R18 получает от R16 и R17 только суммарные `10.21.14.0/24`, `10.21.37.0/24` и `10.21.144.0/24`, по два равнозначных пути (ECMP). Отдельные /29, /26 и /32 R16 и R17 на R18 не попадают:
+
+```
+R18#show ip route eigrp
+D        10.21.14.0/24 [90/1536000] via 10.21.14.129, Ethernet0/0.22
+                       [90/1536000] via 10.21.14.66, Ethernet0/1.23
+D        10.21.37.0/24 [90/1024640] via 10.21.14.129, Ethernet0/0.22
+                       [90/1024640] via 10.21.14.66, Ethernet0/1.23
+D        10.21.144.0/24 [90/1536000] via 10.21.14.129, Ethernet0/0.22
+                         [90/1536000] via 10.21.14.66, Ethernet0/1.23
+```
+
+[R16]: conf/base_conf16.md 
+[R17]: conf/base_conf17.md  
+[R18]: conf/base_conf18.md 
+[R32]: conf/base_conf32.md  
 
